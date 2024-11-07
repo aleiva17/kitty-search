@@ -59,4 +59,5 @@ fun main() {
     runSearchTest("panqueues nueces platano y clara", indexer)
 
     runSearchTest("Panqueques de Plátano, Claras y Nueces - Receta", indexer)
+    runSearchTest("Pal", indexer);
 }

@@ -38,16 +38,16 @@ class Indexer<T>(
 
         // PART A: Consider term as is (no typos)
         // 1) As prefix
-        val primaryPrefixAsIs = primaryPrefixTree.getDataWithPrefix(normalizedTerm)
-        val secondaryPrefixAsIs = secondaryPrefixTree.getDataWithPrefix(normalizedTerm)
+        val primaryPrefixAsIs = this.primaryPrefixTree.getDataWithPrefix(normalizedTerm)
+        val secondaryPrefixAsIs = this.secondaryPrefixTree.getDataWithPrefix(normalizedTerm)
 
-        val possibleSynonym = synonymToOriginalWord.get(normalizedTerm)
+        val possibleSynonym = this.synonymToOriginalWord.get(normalizedTerm)
         val primarySynonymAsIs = if (possibleSynonym != null) {
-            primaryPrefixTree.getDataWithPrefix(possibleSynonym)
+            this.primaryPrefixTree.getDataWithPrefix(possibleSynonym)
         } else mutableListOf()
 
         val secondarySynonymAsIs = if (possibleSynonym != null) {
-            secondaryPrefixTree.getDataWithPrefix(possibleSynonym)
+            this.secondaryPrefixTree.getDataWithPrefix(possibleSynonym)
         } else mutableListOf()
 
 
@@ -94,6 +94,45 @@ class Indexer<T>(
 
         corrections.forEach { (correctionItem, distanceScore) ->
             matches.add(Pair(correctionItem, distanceScore))
+            val (autocompletePrimary, autocompleteSecondary) = this.getIndexableValues(correctionItem)
+
+            for (value in autocompletePrimary) {
+                val suggestedSynonym = this.synonymToOriginalWord[this.normalize(value)]
+                if (suggestedSynonym != null) {
+                    val suggestedSynonymNormalized = this.normalize(suggestedSynonym)
+                    val primarySuggestedSynonymPrefixAsIs =
+                        this.primaryPrefixTree.getDataWithPrefix(suggestedSynonymNormalized)
+                    val secondarySuggestedSynonymPrefixAsIs =
+                        this.secondaryPrefixTree.getDataWithPrefix(suggestedSynonymNormalized)
+
+                    primarySuggestedSynonymPrefixAsIs.forEach { match ->
+                        matches.add(Pair(match.second, match.first.length))
+                    }
+
+                    secondarySuggestedSynonymPrefixAsIs.forEach { match ->
+                        matches.add(Pair(match.second, match.first.length))
+                    }
+                }
+            }
+
+            for (value in autocompleteSecondary) {
+                val suggestedSynonym = this.synonymToOriginalWord[this.normalize(value)]
+                if (suggestedSynonym != null) {
+                    val suggestedSynonymNormalized = this.normalize(suggestedSynonym)
+                    val primarySuggestedSynonymPrefixAsIs =
+                        this.primaryPrefixTree.getDataWithPrefix(suggestedSynonymNormalized)
+                    val secondarySuggestedSynonymPrefixAsIs =
+                        this.secondaryPrefixTree.getDataWithPrefix(suggestedSynonymNormalized)
+
+                    primarySuggestedSynonymPrefixAsIs.forEach { match ->
+                        matches.add(Pair(match.second, match.first.length))
+                    }
+
+                    secondarySuggestedSynonymPrefixAsIs.forEach { match ->
+                        matches.add(Pair(match.second, match.first.length))
+                    }
+                }
+            }
         }
 
         // 4) Merge all previous steps
@@ -111,11 +150,11 @@ class Indexer<T>(
             return emptyList()
         }
 
-        for (pair in uniques) {
-            val dt = pair.first
-            val py = pair.second.second
-            println("$dt -> $py")
-        }
+//        for (pair in uniques) {
+//            val dt = pair.first
+//            val py = pair.second.second
+//            println("$dt -> $py")
+//        }
         // Return the top recommendations
         val sortedByMostFrequencyAndHigherScore =
             uniques.sortedWith(compareBy({ -1 * it.second.first }, { -1 * it.second.second }))
