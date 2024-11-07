@@ -64,6 +64,17 @@ class Indexer<T>(
             matches.add(Pair(match.second, match.first.length))
         }
 
+        println("============")
+        print("PRIMARY PREFIX: ")
+        println(primaryPrefixAsIs)
+        print("SECONDARY PREFIX: ")
+        println(secondaryPrefixAsIs)
+        print("PRIMARY SYNONYM PREFIX: ")
+        println(primarySynonymAsIs)
+        print("SECONDARY SYNONYM PREFIX: ")
+        println(secondarySynonymAsIs)
+        println("============")
+
         // 2) Any word can be a prefix
         val (perWordPrimary, perWordSecondary) = this.getMatchesPerWord(normalizedTerm)
         val (perWordSynonymPrimary, perWordSynonymSecondary) = if (possibleSynonym != null) {
@@ -87,6 +98,16 @@ class Indexer<T>(
         perWordSynonymSecondary.forEach { (pair, score) ->
             matches.add(Pair(pair.second, score))
         }
+
+        print("PER WORD PRIMARY SUBSTR: ")
+        println(perWordPrimary)
+        print("PER WORD SECONDARY SUBSTR: ")
+        println(perWordSecondary)
+        print("PER WORD SYNONYM PRIMARY SUBSTR: ")
+        println(perWordSynonymPrimary)
+        print("PER WORD SYNONYM PRIMARY SUBSTR: ")
+        println(perWordSynonymSecondary)
+        println("============")
 
         // PART B: Consider term has typos
         // 3) Applying Damerau-Levenshtein Distance
@@ -150,25 +171,11 @@ class Indexer<T>(
             return emptyList()
         }
 
-//        for (pair in uniques) {
-//            val dt = pair.first
-//            val py = pair.second.second
-//            println("$dt -> $py")
-//        }
         // Return the top recommendations
         val sortedByMostFrequencyAndHigherScore =
             uniques.sortedWith(compareBy({ -1 * it.second.first }, { -1 * it.second.second }))
 
-        val highestScore = sortedByMostFrequencyAndHigherScore.first().second.second;
-        val threshold = if (highestScore <= 30) {
-            5
-        } else if (highestScore <= 100) {
-            30
-        } else if (highestScore <= 200) {
-            90
-        } else {
-            110
-        }
+        val threshold = 0
 
         return sortedByMostFrequencyAndHigherScore.filter { it.second.second >= threshold }
             .take(responseSize)
@@ -181,12 +188,16 @@ class Indexer<T>(
         val secondaryMatches = ArrayList<RankedMatch<Pair<String, T>>>()
 
         for (word in words) {
+            if (word.length <= 1) {
+                continue
+            }
             // Prefix matches
             primaryMatches.addAll(
                 this.primaryPrefixTree.getDataWithPrefix(word).map { match ->
                     Pair(Pair(match.first, match.second), match.first.length - word.length)
                 }
             )
+
             secondaryMatches.addAll(
                 this.secondaryPrefixTree.getDataWithPrefix(word).map { match ->
                     Pair(Pair(match.first, match.second), match.first.length - word.length)
@@ -260,8 +271,16 @@ class Indexer<T>(
         val minScore = nearestMatches[0].second
 
         // Penalization for long or short words with mistakes
-        if ((keywordLength >= 10 && minScore * (keywordLength / 10 + 1) > keywordLength) ||
-            (keywordLength > 3 && keywordLength < 10 && (keywordLength shr 1) + 1 <= minScore)
+//        if ((keywordLength >= 10 && minScore * (keywordLength / 10 + 1) > keywordLength) ||
+//            (keywordLength > 3 && keywordLength < 10 && (keywordLength shr 1) + 1 <= minScore)
+//        ) {
+//            return emptyList()
+//        }
+
+        if ((keywordLength <= 2 && minScore > 1) ||
+            (keywordLength <= 6 && minScore > 3) ||
+            (keywordLength <= 12 && minScore > 5) ||
+            (keywordLength <= 20 && minScore > 8)
         ) {
             return emptyList()
         }
@@ -294,7 +313,7 @@ class Indexer<T>(
                 .replace(",", " ").replace(".", " ").replace(";", "").replace("!", "^").replace("^", "")
                 .replace("$", "").replace("#", "").replace("+", "").replace("×", "").replace("=", "").replace("_", "")
                 .replace("÷", "").replace("@", "").replace("<", "").replace(">", "")
-                .replace("\\s{2,}".toRegex(), " ")
+                .replace("\\s{2,}".toRegex(), " ").replace(Regex("(.)\\1{2,}")) { it.value.take(2) }
         val trimmed = simplified.trim()
         return Normalizer.normalize(trimmed, Normalizer.Form.NFD).replace("\\p{Mn}+".toRegex(), "")
     }

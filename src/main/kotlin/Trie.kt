@@ -1,9 +1,9 @@
 package app.fitia
 
 class Trie<T> {
-    private val root = Node<T>();
+    private val root = Node<T>()
 
-    fun add(word: String, payload: T?) {
+    fun add(word: String, payload: T) {
         var automata = root
 
         for (letter in word) {
@@ -15,33 +15,7 @@ class Trie<T> {
 
         automata.isEnd = true
         automata.word = word
-        automata.payload = payload
-    }
-
-    fun hasPrefix(word: String): Boolean {
-        var automata = root
-
-        for (letter in word) {
-            if (!automata.children.contains(letter)) {
-                return false
-            }
-            automata = automata.children[letter]!!
-        }
-
-        return true
-    }
-
-    fun hasWord(word: String): Boolean {
-        var automata = root
-
-        for (letter in word) {
-            if (!automata.children.contains(letter)) {
-                return false
-            }
-            automata = automata.children[letter]!!
-        }
-
-        return automata.isEnd
+        automata.payload.add(payload)
     }
 
     fun getDataWithPrefix(prefix: String): MutableList<Pair<String, T>> {
@@ -62,7 +36,7 @@ class Trie<T> {
             val node = queue.removeFirst()
 
             if (node.isEnd) {
-                data.add(Pair(node.word, node.payload!!))
+                node.payload.forEach { payload -> data.add(Pair(node.word, payload)) }
             }
 
             for (child in node.children) {
@@ -70,7 +44,7 @@ class Trie<T> {
             }
         }
 
-        return data;
+        return data
     }
 }
 
@@ -78,5 +52,5 @@ class Node<T> {
     val children: HashMap<Char, Node<T>> = HashMap()
     var isEnd = false
     var word = ""
-    var payload: T? = null
+    var payload: MutableList<T> = mutableListOf()
 }

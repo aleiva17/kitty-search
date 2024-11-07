@@ -2,15 +2,18 @@ package app.fitia
 
 class Food(val name: String, val category: String) {
     override fun toString(): String {
-        return "[$name - $category]"
+        return "$name (Category: $category)"
     }
 }
 
-fun runSearchTest(term: String, indexer: Indexer<Food>) {
+fun runSearchTest(term: String, kitty: KittyIndexer<Food>) {
     println("\n============================")
     println("RESULTS FOR: '$term'")
-    val response = indexer.search(term)
-    response.forEach { food -> println("\t$food") }
+    val response = kitty.search(term)
+    response.forEachIndexed { index, food ->
+        val order = index + 1
+        println("\t$order. $food")
+    }
 }
 
 fun main() {
@@ -30,34 +33,73 @@ fun main() {
         Food("Pollo", "Proteínas"),
         Food("Arroz con pollo", "Receta"),
         Food("Pan con pollo", "Receta"),
-        Food("Panqueques de Plátano, Claras y Nueces", "Receta")
+        Food("Panqueques de Plátano, Claras y Nueces", "Receta"),
+
+        Food("Lomo de Res con Queso con Papas al Horno y Vainitas", "Receta"),
+        Food("Lomo Salteado con Chapiñones y Cebolla", "Receta"),
+        Food("Lomo de Res con Choclo y Verduras al Grill", "Receta"),
+        Food("Pollo Salteado", "Receta"),
+        Food("Aguacate al Horno con Huevo y Atún", "Receta"),
+        Food("Oreo Milshake de Fresa", "Galletas y Snacks"),
+        Food("Original OREO Test 2", "Galletas y Snacks"),
+        Food("Oreo Galletas", "Galletas y Snacks"),
+
+        Food("Fruta", "Frutas"),
+        Food("Uvas Verdes", "Frutas"),
+        Food("Manzana", "Frutas"),
+        Food("Naranja", "Frutas"),
+        Food("Papaya", "Frutas"),
+        Food("Sandía", "Frutas"),
+        Food("Una fruta con un nombre super largo", "Frutas"),
+        Food("Melón", "Frutas"),
+        Food("Otra fruta pero con un nombre aún más largo que el anterior", "Frutas"),
     )
 
     val synonyms = arrayListOf(
         Pair("Pink", "Green"),
         Pair("Palta", "Aguacate"),
+        Pair("Papaya", "Lechosa"),
         Pair("Sushi", "Maki"),
         Pair("Ajustes", "Configuración"),
     )
 
-    val getIndexableValues = { data: Food -> Pair(arrayListOf(data.name), arrayListOf(data.category)) }
-    val indexer = Indexer<Food>(database, getIndexableValues, 100, synonyms)
+    val getIndexableValues = { data: Food -> arrayListOf(data.name, data.category) }
+    val kitty = KittyIndexer<Food>(database, getIndexableValues, 100, synonyms)
 
-    runSearchTest("palta", indexer)
-    runSearchTest("aguacate", indexer)
-    runSearchTest("receta", indexer)
-    runSearchTest("pink", indexer)
-    runSearchTest("pollo receta", indexer)
-    runSearchTest("receta pollo", indexer)
-    runSearchTest("huevo y palta galletas con", indexer)
-    runSearchTest("uevo y pata galletas con", indexer)
+    runSearchTest("palta", kitty)
+    runSearchTest("aguacate", kitty)
+    runSearchTest("receta", kitty)
+    runSearchTest("pink", kitty)
+    runSearchTest("pollo receta", kitty)
+    runSearchTest("receta pollo", kitty)
+    runSearchTest("huevo y palta galletas con", kitty)
+    runSearchTest("uevo y pata galletas con", kitty)
 
-    runSearchTest("panqueques", indexer)
-    runSearchTest("panqueues receta", indexer)
-    runSearchTest("panqueues platano", indexer)
-    runSearchTest("panqueues platano claras y nueces", indexer)
-    runSearchTest("panqueues nueces platano y clara", indexer)
+    runSearchTest("panqueques", kitty)
+    runSearchTest("panqueues receta", kitty)
+    runSearchTest("panqueues platano", kitty)
+    runSearchTest("panqueues platano claras y nueces", kitty)
+    runSearchTest("panqueues nueces platano y clara", kitty)
 
-    runSearchTest("Panqueques de Plátano, Claras y Nueces - Receta", indexer)
-    runSearchTest("Pal", indexer);
+    runSearchTest("Panqueques de Plátano, Claras y Nueces - Receta", kitty)
+    runSearchTest("Pal", kitty)
+
+    runSearchTest("galletas y snacks", kitty)
+    runSearchTest("pollo y lomo", kitty)
+    runSearchTest("Lomo de Res", kitty)
+
+    runSearchTest("galletsa sancks", kitty)
+    runSearchTest("galletas y snacks", kitty)
+    runSearchTest("pollo y lomo", kitty)
+    runSearchTest("Lomo de Res", kitty)
+    runSearchTest("F", kitty)
+    runSearchTest("Fr", kitty)
+    runSearchTest("Fru", kitty)
+    runSearchTest("Frut", kitty)
+    runSearchTest("Fruta", kitty)
+    runSearchTest("Frutas", kitty)
+    runSearchTest("Frtuas", kitty)
+    runSearchTest("FFFFRRRRRRuuuuuutttttttttaas", kitty)
+
+    runSearchTest("Configuración de sistema", kitty)
 }

@@ -5,9 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Indexer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Indexer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Trie.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Trie.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -123,7 +125,8 @@
       <workItem from="1730929986410" duration="5192000" />
       <workItem from="1730984734375" duration="2747000" />
       <workItem from="1730992783155" duration="804000" />
-      <workItem from="1730993608026" duration="1083000" />
+      <workItem from="1730993608026" duration="1347000" />
+      <workItem from="1731006162955" duration="10090000" />
     </task>
     <servers />
   </component>
