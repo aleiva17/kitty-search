@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" afterDir="false" />
+    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="feat(kitty): add enhanced kitty indexer">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Indexer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Indexer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Trie.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Trie.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +59,9 @@
   </component>
   <component name="OptimizeOnSaveOptions">
     <option name="myRunOnSave" value="true" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 5
@@ -126,11 +127,25 @@
       <workItem from="1730984734375" duration="2747000" />
       <workItem from="1730992783155" duration="804000" />
       <workItem from="1730993608026" duration="1347000" />
-      <workItem from="1731006162955" duration="10090000" />
+      <workItem from="1731006162955" duration="10974000" />
+      <workItem from="1731021070540" duration="3539000" />
     </task>
+    <task id="LOCAL-00001" summary="feat(kitty): add enhanced kitty indexer">
+      <option name="closed" value="true" />
+      <created>1731018760076</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1731018760076</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat(kitty): add enhanced kitty indexer" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(kitty): add enhanced kitty indexer" />
   </component>
 </project>

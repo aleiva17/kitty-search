@@ -53,6 +53,20 @@ fun main() {
         Food("Una fruta con un nombre super largo", "Frutas"),
         Food("Melón", "Frutas"),
         Food("Otra fruta pero con un nombre aún más largo que el anterior", "Frutas"),
+
+        Food("Cerdo al kión con arroz", "Receta"),
+        Food("Lomo salteado con champiñones y cebolla", "Receta"),
+
+        Food("Panuchos", "Recetas"),
+        Food("Panqueso", "Queso"),
+        Food("Jengibre", "Verduras"),
+        Food("Uvas", "Frutas"),
+        Food("Test 8", "Otros"),
+        Food("Kión", "Verduras"),
+        Food("Test 9", "Otros"),
+        Food("Test 6", "Otros"),
+        Food("Test 3", "Otros"),
+        Food("Test", "Otros"),
     )
 
     val synonyms = arrayListOf(
@@ -64,7 +78,7 @@ fun main() {
     )
 
     val getIndexableValues = { data: Food -> arrayListOf(data.name, data.category) }
-    val kitty = KittyIndexer<Food>(database, getIndexableValues, 100, synonyms)
+    val kitty = KittyIndexer<Food>(database, getIndexableValues, synonyms)
 
     runSearchTest("palta", kitty)
     runSearchTest("aguacate", kitty)
@@ -102,4 +116,20 @@ fun main() {
     runSearchTest("FFFFRRRRRRuuuuuutttttttttaas", kitty)
 
     runSearchTest("Configuración de sistema", kitty)
+
+    runSearchTest("K", kitty)
+    runSearchTest("Ki", kitty)
+    runSearchTest("Kio", kitty)
+    runSearchTest("Kion", kitty)
+
+    runSearchTest("S", kitty)
+    runSearchTest("Sa", kitty)
+    runSearchTest("Sal", kitty)
+    runSearchTest("Salt", kitty)
+    runSearchTest("Salte", kitty)
+    runSearchTest("Saltea", kitty)
+    runSearchTest("Saltead", kitty)
+    runSearchTest("Salteado", kitty)
+
+    runSearchTest("Pan", kitty)
 }

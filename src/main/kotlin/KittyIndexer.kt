@@ -6,7 +6,6 @@ import kotlin.collections.forEach
 class KittyIndexer<T>(
     private val database: List<T>,
     private val getIndexableValues: (T) -> List<String>,
-    private val responseSize: Int = 16,
     synonyms: List<Pair<String, String>> = emptyList()
 ) {
     private val prefixTree = Trie<T>()
@@ -31,6 +30,9 @@ class KittyIndexer<T>(
     }
 
     fun search(term: String): List<T> {
+        val mustMatches = ArrayList<RankedMatch<T>>()
+        val fuzzyMatches = ArrayList<RankedMatch<T>>()
+
         val matches = ArrayList<RankedMatch<T>>()
         val normalizedTerm = this.normalize(term)
 
@@ -44,10 +46,10 @@ class KittyIndexer<T>(
         } else emptyList()
 
         prefixAsIs.forEach { match ->
-            matches.add(Pair(match.second, match.first.length - normalizedTerm.length))
+            mustMatches.add(Pair(match.second, match.first.length - normalizedTerm.length))
         }
         synonymsAsIs.forEach { match ->
-            matches.add(Pair(match.second, match.first.length - normalizedTerm.length))
+            mustMatches.add(Pair(match.second, match.first.length - normalizedTerm.length))
         }
 
         // 2) Any word can be a prefix
@@ -56,19 +58,15 @@ class KittyIndexer<T>(
             this.getMatchesPerWord(possibleSynonym)
         } else emptyList()
 
-        perWordMatches.forEach { (pair, score) ->
-            matches.add(Pair(pair.second, score))
-        }
-        synonymPerWordMatches.forEach { (pair, score) ->
-            matches.add(Pair(pair.second, score))
-        }
+        perWordMatches.forEach { pair -> mustMatches.add(pair) }
+        synonymPerWordMatches.forEach { pair -> mustMatches.add(pair) }
 
         // PART B: Consider term has typos
         // 3) Applying Damerau-Levenshtein Distance
         val corrections = this.getNearestFoodsFixingTypos(normalizedTerm)
 
         corrections.forEach { (correctionItem, distanceScore) ->
-            matches.add(Pair(correctionItem, distanceScore))
+            fuzzyMatches.add(Pair(correctionItem, distanceScore))
             val indexableValues = this.getIndexableValues(correctionItem)
 
             for (key in indexableValues) {
@@ -79,40 +77,64 @@ class KittyIndexer<T>(
                 }
 
                 val suggestedSynonymNormalized = this.normalize(suggestedSynonym)
-                val suggestedSynonymPrefixAsIs =
-                    this.prefixTree.getDataWithPrefix(suggestedSynonymNormalized)
+                val suggestedSynonymPrefixAsIs = this.prefixTree.getDataWithPrefix(suggestedSynonymNormalized)
 
                 suggestedSynonymPrefixAsIs.forEach { match ->
-                    matches.add(Pair(match.second, match.first.length - suggestedSynonymNormalized.length))
+                    fuzzyMatches.add(Pair(match.second, match.first.length - suggestedSynonymNormalized.length))
                 }
             }
         }
 
         // 4) Merge all previous steps
-        // Group recommendations by item and keep minimal score
-        val cnt = HashMap<T, Pair<Int, Int>>()
+        // Group recommendations by item and keep minimal
+        // score
+        val uniqueMustMatches =
+            this.compressMatches(mustMatches)
+                .sortedWith(compareBy({ -1 * it.second.first }, { it.second.second }))
+                .map { it.first }
+        val seen = uniqueMustMatches.toHashSet()
 
-        for ((data, score) in matches) {
-            val existingScore = cnt.getOrDefault(data, Pair(0, 0))
-            cnt[data] = Pair(existingScore.first + 1, existingScore.second + score)
-        }
+        val uniqueFuzzyMatches = this.compressMatches(fuzzyMatches)
+            .filter { !seen.contains(it.first) }
+            .sortedWith(compareBy({ -1 * it.second.first }, { it.second.second }))
+            .map { it.first }
 
-        val uniques = cnt.toList()
-
-        if (uniques.isEmpty()) {
-            return emptyList()
-        }
-
-        // Return the top recommendations
-        val sortedByMostFrequencyAndHigherScore =
-            uniques.sortedWith(compareBy({ -1 * it.second.first }, { it.second.second }))
-
-        return sortedByMostFrequencyAndHigherScore.take(responseSize).map { it.first }
+        return uniqueMustMatches + uniqueFuzzyMatches
     }
 
-    private fun getMatchesPerWord(text: String): List<RankedMatch<Pair<String, T>>> {
+    private fun mergeMatches(
+        mustMatches: List<Pair<T, Pair<Int, Int>>>,
+        fuzzyMatches: List<Pair<T, Pair<Int, Int>>>
+    ): List<Pair<T, Pair<Int, Int>>> {
+        val frequencyScore = HashMap<T, Pair<Int, Int>>()
+
+        for ((data, pair) in mustMatches) {
+            frequencyScore[data] = pair
+        }
+
+        for ((data, pair) in fuzzyMatches) {
+            val (freq, score) = pair
+            val existingScore = frequencyScore.getOrDefault(data, Pair(0, 0))
+            frequencyScore[data] = Pair(existingScore.first + freq, existingScore.second + score)
+        }
+
+        return frequencyScore.toList()
+    }
+
+    private fun compressMatches(matches: List<RankedMatch<T>>): List<Pair<T, Pair<Int, Int>>> {
+        val frequencyScore = HashMap<T, Pair<Int, Int>>()
+
+        for ((data, score) in matches) {
+            val existingScore = frequencyScore.getOrDefault(data, Pair(0, 0))
+            frequencyScore[data] = Pair(existingScore.first + 1, existingScore.second + score)
+        }
+
+        return frequencyScore.toList()
+    }
+
+    private fun getMatchesPerWord(text: String): List<RankedMatch<T>> {
         val words = text.split(" ")
-        val matches = ArrayList<RankedMatch<Pair<String, T>>>()
+        val matches = ArrayList<RankedMatch<T>>()
 
         for (word in words) {
             if (word.length <= 1) {
@@ -121,7 +143,7 @@ class KittyIndexer<T>(
             // Prefix matches
             matches.addAll(
                 this.prefixTree.getDataWithPrefix(word).map { match ->
-                    Pair(Pair(match.first, match.second), match.first.length - word.length)
+                    Pair(match.second, match.first.length - word.length)
                 }
             )
 
@@ -132,24 +154,11 @@ class KittyIndexer<T>(
                 val indexableValues = this.getIndexableValues(data)
 
                 indexableValues.forEach { key ->
-                    val factor = if (word.length <= 7) {
-                        1.75
-                    } else if (word.length <= 12) {
-                        1.50
-                    } else {
-                        1.25
-                    }
+                    val normalizedKey = this.normalize(key)
+                    val matchResponse = kmp.searchOn(normalizedKey)
 
-                    if (key.length <= factor * word.length) {
-                        val matchResponse = kmp.searchOn(this.normalize(key))
-                        if (matchResponse.first && matchResponse.second > 0) {
-                            matches.add(
-                                Pair(
-                                    Pair(key, data),
-                                    matchResponse.second + key.length - word.length
-                                )
-                            )
-                        }
+                    if (matchResponse.first && matchResponse.second > 0) {
+                        matches.add(Pair(data, normalizedKey.length - word.length))
                     }
                 }
             }
