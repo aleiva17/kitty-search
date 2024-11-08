@@ -33,7 +33,6 @@ class KittyIndexer<T>(
         val mustMatches = ArrayList<RankedMatch<T>>()
         val fuzzyMatches = ArrayList<RankedMatch<T>>()
 
-        val matches = ArrayList<RankedMatch<T>>()
         val normalizedTerm = this.normalize(term)
 
         // PART A: Consider term as is (no typos)
@@ -86,8 +85,6 @@ class KittyIndexer<T>(
         }
 
         // 4) Merge all previous steps
-        // Group recommendations by item and keep minimal
-        // score
         val uniqueMustMatches =
             this.compressMatches(mustMatches)
                 .sortedWith(compareBy({ -1 * it.second.first }, { it.second.second }))
@@ -100,25 +97,6 @@ class KittyIndexer<T>(
             .map { it.first }
 
         return uniqueMustMatches + uniqueFuzzyMatches
-    }
-
-    private fun mergeMatches(
-        mustMatches: List<Pair<T, Pair<Int, Int>>>,
-        fuzzyMatches: List<Pair<T, Pair<Int, Int>>>
-    ): List<Pair<T, Pair<Int, Int>>> {
-        val frequencyScore = HashMap<T, Pair<Int, Int>>()
-
-        for ((data, pair) in mustMatches) {
-            frequencyScore[data] = pair
-        }
-
-        for ((data, pair) in fuzzyMatches) {
-            val (freq, score) = pair
-            val existingScore = frequencyScore.getOrDefault(data, Pair(0, 0))
-            frequencyScore[data] = Pair(existingScore.first + freq, existingScore.second + score)
-        }
-
-        return frequencyScore.toList()
     }
 
     private fun compressMatches(matches: List<RankedMatch<T>>): List<Pair<T, Pair<Int, Int>>> {
