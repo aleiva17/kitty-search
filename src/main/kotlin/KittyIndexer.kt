@@ -167,7 +167,9 @@ class KittyIndexer<T>(
                 }
             }
 
-            nearestMatches.add(Pair(record, minDistance))
+            if (minDistance <= 0.6 * normalizedText.length || minDistance + 1 < normalizedText.length) {
+                nearestMatches.add(Pair(record, minDistance))
+            }
         }
 
         nearestMatches.sortBy { it.second }

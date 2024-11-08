@@ -132,4 +132,5 @@ fun main() {
     runSearchTest("Salteado", kitty)
 
     runSearchTest("Pan", kitty)
+    runSearchTest("Ají", kitty)
 }
