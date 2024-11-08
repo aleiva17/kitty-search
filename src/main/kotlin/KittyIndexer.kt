@@ -29,7 +29,7 @@ class KittyIndexer<T>(
         }
     }
 
-    fun search(term: String): List<T> {
+    fun search(term: String, acceptIf: (T) -> Boolean = { data -> true }): List<T> {
         val mustMatches = ArrayList<RankedMatch<T>>()
         val fuzzyMatches = ArrayList<RankedMatch<T>>()
 
@@ -96,7 +96,7 @@ class KittyIndexer<T>(
             .sortedWith(compareBy({ -1 * it.second.first }, { it.second.second }))
             .map { it.first }
 
-        return uniqueMustMatches + uniqueFuzzyMatches
+        return (uniqueMustMatches + uniqueFuzzyMatches).filter { it -> acceptIf(it) }
     }
 
     private fun compressMatches(matches: List<RankedMatch<T>>): List<Pair<T, Pair<Int, Int>>> {
