@@ -2,6 +2,11 @@ package app.fitia
 
 import java.text.Normalizer
 import kotlin.collections.forEach
+import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+
+typealias RankedMatch<T> = Pair<T, Int>
 
 class KittyIndexer<T>(
     private val database: List<T>,
@@ -9,7 +14,7 @@ class KittyIndexer<T>(
     synonyms: List<Pair<String, String>> = emptyList()
 ) {
     private val prefixTree = Trie<T>()
-    private val synonymOf = HashMap<String, String>()
+    private val synonymOf = HashMap<String, ArrayList<String>>()
 
 
     init {
@@ -23,9 +28,8 @@ class KittyIndexer<T>(
         for ((a, b) in newSynonyms) {
             val first = this.normalize(a)
             val second = this.normalize(b)
-
-            synonymOf[first] = second
-            synonymOf[second] = first
+            synonymOf.getOrPut(first) { arrayListOf() }.add(second)
+            synonymOf.getOrPut(second) { arrayListOf() }.add(first)
         }
     }
 
@@ -38,24 +42,27 @@ class KittyIndexer<T>(
         // PART A: Consider term as is (no typos)
         // 1) As prefix
         val prefixAsIs = this.prefixTree.getDataWithPrefix(normalizedTerm)
-        val possibleSynonym = this.synonymOf.get(normalizedTerm)
+        val synonyms = this.synonymOf.getOrDefault(normalizedTerm, arrayListOf())
+        val synonymsAsIs = arrayListOf<Pair<String, T>>()
 
-        val synonymsAsIs = if (possibleSynonym != null) {
-            this.prefixTree.getDataWithPrefix(possibleSynonym)
-        } else emptyList()
-
-        prefixAsIs.forEach { match ->
-            mustMatches.add(Pair(match.second, match.first.length - normalizedTerm.length))
+        synonyms.forEach { it ->
+            this.prefixTree.getDataWithPrefix(it).forEach { res -> synonymsAsIs.add(res) }
         }
-        synonymsAsIs.forEach { match ->
-            mustMatches.add(Pair(match.second, match.first.length - normalizedTerm.length))
+
+        prefixAsIs.forEach { (word, payload) ->
+            mustMatches.add(Pair(payload, word.length - normalizedTerm.length))
+        }
+        synonymsAsIs.forEach { (word, payload) ->
+            mustMatches.add(Pair(payload, word.length - normalizedTerm.length))
         }
 
         // 2) Any word can be a prefix
         val perWordMatches = this.getMatchesPerWord(normalizedTerm)
-        val synonymPerWordMatches = if (possibleSynonym != null) {
-            this.getMatchesPerWord(possibleSynonym)
-        } else emptyList()
+        val synonymPerWordMatches = arrayListOf<RankedMatch<T>>()
+
+        synonyms.forEach { it ->
+            this.getMatchesPerWord(it).forEach { res -> synonymPerWordMatches.add(res) }
+        }
 
         perWordMatches.forEach { pair -> mustMatches.add(pair) }
         synonymPerWordMatches.forEach { pair -> mustMatches.add(pair) }
@@ -69,17 +76,15 @@ class KittyIndexer<T>(
             val indexableValues = this.getIndexableValues(correctionItem)
 
             for (key in indexableValues) {
-                val suggestedSynonym = this.synonymOf[this.normalize(key)]
+                val suggestedSynonyms = this.synonymOf.getOrDefault(this.normalize(key), emptyList())
 
-                if (suggestedSynonym == null) {
-                    continue
-                }
+                suggestedSynonyms.forEach { suggestedSynonym ->
+                    val suggestedSynonymNormalized = this.normalize(suggestedSynonym)
+                    val suggestedSynonymPrefixAsIs = this.prefixTree.getDataWithPrefix(suggestedSynonymNormalized)
 
-                val suggestedSynonymNormalized = this.normalize(suggestedSynonym)
-                val suggestedSynonymPrefixAsIs = this.prefixTree.getDataWithPrefix(suggestedSynonymNormalized)
-
-                suggestedSynonymPrefixAsIs.forEach { match ->
-                    fuzzyMatches.add(Pair(match.second, match.first.length - suggestedSynonymNormalized.length))
+                    suggestedSynonymPrefixAsIs.forEach { match ->
+                        fuzzyMatches.add(Pair(match.second, match.first.length - suggestedSynonymNormalized.length))
+                    }
                 }
             }
         }
@@ -118,25 +123,50 @@ class KittyIndexer<T>(
             if (word.length <= 1) {
                 continue
             }
+            val synonyms = this.synonymOf.getOrDefault(word, emptyList())
+
             // Prefix matches
             matches.addAll(
                 this.prefixTree.getDataWithPrefix(word).map { match ->
                     Pair(match.second, match.first.length - word.length)
                 }
             )
+            // Prefix matches synonym
+            synonyms.forEach { synonym ->
+                matches.addAll(
+                    this.prefixTree.getDataWithPrefix(synonym).map { match ->
+                        Pair(match.second, match.first.length - synonym.length)
+                    }
+                )
+            }
 
             // KMP substring matches
             val kmp = KnuthMorrisPratt(word)
 
             this.database.forEach { data ->
                 val indexableValues = this.getIndexableValues(data)
+                var quantityOfMatches = 0
+                var minDistance = Int.MAX_VALUE
+                var maxDistance = Int.MIN_VALUE
 
                 indexableValues.forEach { key ->
                     val normalizedKey = this.normalize(key)
                     val matchResponse = kmp.searchOn(normalizedKey)
 
                     if (matchResponse.first && matchResponse.second > 0) {
-                        matches.add(Pair(data, normalizedKey.length - word.length))
+                        quantityOfMatches++
+                        minDistance = min(matchResponse.second, minDistance)
+                        maxDistance = max(matchResponse.second, maxDistance)
+                    }
+                }
+
+                if (quantityOfMatches > 0) {
+                    val factor =
+                        1.0 + ((indexableValues.size.toDouble() - quantityOfMatches.toDouble()) / indexableValues.size.toDouble())
+                    val distance = floor(minDistance + (maxDistance - minDistance).toDouble() / 2).toInt()
+                    val score = floor(factor * distance).toInt()
+                    if (score > 0) {
+                        matches.add(Pair(data, score))
                     }
                 }
             }
@@ -157,18 +187,27 @@ class KittyIndexer<T>(
         for (record in database) {
             val indexableValues = this.getIndexableValues(record)
             var minDistance = Int.MAX_VALUE
+            var maxDistance = Int.MIN_VALUE
+            var quantityOfMatches = 0
 
             // Calculate the minimal Damerau-Levenshtein distance for all indexable values
             for (value in indexableValues) {
                 val normalizedValue = this.normalize(value)
                 val distance = DamerauLevenshteinDistance.calculate(normalizedText, normalizedValue)
-                if (distance < minDistance) {
-                    minDistance = distance
+
+                minDistance = min(distance, minDistance)
+                maxDistance = max(distance, maxDistance)
+
+                if (distance <= 0.6 * normalizedText.length) {
+                    quantityOfMatches++
                 }
             }
 
-            if (minDistance <= 0.6 * normalizedText.length || minDistance + 1 < normalizedText.length) {
-                nearestMatches.add(Pair(record, minDistance))
+            if (quantityOfMatches > 0) {
+                val factor =
+                    1.0 + ((indexableValues.size.toDouble() - quantityOfMatches.toDouble()) / indexableValues.size.toDouble())
+                val distance = floor(minDistance + (maxDistance - minDistance).toDouble() / 2).toInt()
+                nearestMatches.add(Pair(record, floor(factor * distance).toInt()))
             }
         }
 

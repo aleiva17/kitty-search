@@ -2,7 +2,7 @@ package app.fitia
 
 class Food(val name: String, val category: String) {
     override fun toString(): String {
-        return "$name (Category: $category)"
+        return name
     }
 }
 
@@ -22,7 +22,6 @@ fun main() {
         Food("Palta", "Fruta"),
         Food("Pan con palta", "Receta"),
         Food("Pan con aguacate", "Receta"),
-        Food("Maki Palta", "Sushi"),
         Food("Atún con palta y huevo", "Receta"),
         Food("Galletas con huevo y palta", "Receta"),
         Food("Galletas con huevo y aguacate", "Receta"),
@@ -43,10 +42,14 @@ fun main() {
         Food("Oreo Milshake de Fresa", "Galletas y Snacks"),
         Food("Original OREO Test 2", "Galletas y Snacks"),
         Food("Oreo Galletas", "Galletas y Snacks"),
+        Food("Galletas de avena", "Galletas y Snacks"),
+        Food("Inka Corn original", "Galletas y Snacks"),
+        Food("Galletas con chispas de chocolate", "Galletas y Snacks"),
 
         Food("Fruta", "Frutas"),
         Food("Uvas Verdes", "Frutas"),
         Food("Manzana", "Frutas"),
+        Food("Manzana Gala", "Frutas"),
         Food("Naranja", "Frutas"),
         Food("Papaya", "Frutas"),
         Food("Sandía", "Frutas"),
@@ -57,6 +60,7 @@ fun main() {
         Food("Cerdo al kión con arroz", "Receta"),
         Food("Lomo salteado con champiñones y cebolla", "Receta"),
 
+        Food("Pizza de galletas", "Recetas"),
         Food("Panuchos", "Recetas"),
         Food("Panqueso", "Queso"),
         Food("Jengibre", "Verduras"),
@@ -67,13 +71,29 @@ fun main() {
         Food("Test 6", "Otros"),
         Food("Test 3", "Otros"),
         Food("Test", "Otros"),
+        Food("Almendras", "Grasas"),
+        Food("Repollo", "Otro"),
+
+        Food("Atún", "Otros"),
+        Food("Atún con manzana", "Otros"),
+        Food("Atún Test", "Otros"),
+        Food("Atun Test", "Otros"),
+        Food("Atun nombre super largo que sera al final", "Otros"),
+
+        Food("Plátano", "Frutas"),
+        Food("Banana", "Frutas"),
+        Food("Banano", "Frutas"),
     )
 
     val synonyms = arrayListOf(
         Pair("Pink", "Green"),
         Pair("Palta", "Aguacate"),
         Pair("Papaya", "Lechosa"),
-        Pair("Sushi", "Maki"),
+
+        Pair("Plátano", "Banana"),
+        Pair("Plátano", "Banano"),
+        Pair("Banana", "Banano"),
+
         Pair("Ajustes", "Configuración"),
     )
 
@@ -133,4 +153,36 @@ fun main() {
 
     runSearchTest("Pan", kitty)
     runSearchTest("Ají", kitty)
+
+    runSearchTest("Aguacate al horno", kitty)
+    runSearchTest("Palta al horno", kitty)
+    runSearchTest("Al horno aguacate", kitty)
+    runSearchTest("Al horno palta", kitty)
+    runSearchTest("Al horno palgta", kitty)
+
+    runSearchTest("pollo", kitty)
+
+    runSearchTest("banana", kitty)
+    runSearchTest("banano", kitty)
+    runSearchTest("plátano", kitty)
+
+    runSearchTest("p", kitty)
+    runSearchTest("pa", kitty)
+    runSearchTest("pal", kitty)
+    runSearchTest("palt", kitty)
+
+    runSearchTest("pan con p", kitty)
+    runSearchTest("pan con pa", kitty)
+    runSearchTest("pan con pal", kitty)
+    runSearchTest("pan con palt", kitty)
+    runSearchTest("pan con palta", kitty)
+
+    runSearchTest("a", kitty)
+    runSearchTest("ag", kitty)
+    runSearchTest("agu", kitty)
+    runSearchTest("agua", kitty)
+    runSearchTest("aguac", kitty)
+    runSearchTest("aguaca", kitty)
+    runSearchTest("aguacat", kitty)
+    runSearchTest("aguacate", kitty)
 }

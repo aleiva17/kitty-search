@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="fix(typos): add boundaries for typos">
+    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="feat(filtering): add filtering callback">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,6 +130,9 @@
       <workItem from="1731006162955" duration="10974000" />
       <workItem from="1731021070540" duration="5055000" />
       <workItem from="1731026366050" duration="30000" />
+      <workItem from="1731074590336" duration="11485000" />
+      <workItem from="1731089579837" duration="13935000" />
+      <workItem from="1731333262083" duration="9160000" />
     </task>
     <task id="LOCAL-00001" summary="feat(kitty): add enhanced kitty indexer">
       <option name="closed" value="true" />
@@ -161,7 +166,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731026032398</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="feat(filtering): add filtering values">
+      <option name="closed" value="true" />
+      <created>1731074854142</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1731074854142</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -172,6 +185,7 @@
     <MESSAGE value="feat(kitty): split must and fuzzy matches" />
     <MESSAGE value="chore(docs): remove unused functions and comments" />
     <MESSAGE value="fix(typos): add boundaries for typos" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(typos): add boundaries for typos" />
+    <MESSAGE value="feat(filtering): add filtering values" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(filtering): add filtering values" />
   </component>
 </project>
