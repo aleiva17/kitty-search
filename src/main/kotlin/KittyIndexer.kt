@@ -182,21 +182,20 @@ class KittyIndexer<T>(
 
         val nearestMatches = ArrayList<RankedMatch<T>>()
         val normalizedText = this.normalize(text)
-        val keywordLength = normalizedText.length
+        var minScore = Int.MAX_VALUE
 
         for (record in database) {
             val indexableValues = this.getIndexableValues(record)
             var minDistance = Int.MAX_VALUE
-            var maxDistance = Int.MIN_VALUE
             var quantityOfMatches = 0
+
+            minScore = Int.MAX_VALUE
 
             // Calculate the minimal Damerau-Levenshtein distance for all indexable values
             for (value in indexableValues) {
                 val normalizedValue = this.normalize(value)
                 val distance = DamerauLevenshteinDistance.calculate(normalizedText, normalizedValue)
-
                 minDistance = min(distance, minDistance)
-                maxDistance = max(distance, maxDistance)
 
                 if (distance <= 0.6 * normalizedText.length) {
                     quantityOfMatches++
@@ -205,29 +204,25 @@ class KittyIndexer<T>(
 
             if (quantityOfMatches > 0) {
                 val factor =
-                    1.0 + ((indexableValues.size.toDouble() - quantityOfMatches.toDouble()) / indexableValues.size.toDouble())
-                val distance = floor(minDistance + (maxDistance - minDistance).toDouble() / 2).toInt()
-                nearestMatches.add(Pair(record, floor(factor * distance).toInt()))
+                    1.0 + ((indexableValues.size - quantityOfMatches).toDouble() / indexableValues.size.toDouble())
+                val score = (factor * minDistance).toInt()
+                minScore = min(minScore, score)
+                nearestMatches.add(Pair(record, score))
             }
         }
 
         nearestMatches.sortBy { it.second }
-        if (nearestMatches.isEmpty()) {
-            return emptyList()
-        }
-        val minScore = nearestMatches[0].second
-
-        if ((keywordLength <= 2 && minScore > 1) ||
-            (keywordLength <= 6 && minScore > 3) ||
-            (keywordLength <= 12 && minScore > 5) ||
-            (keywordLength <= 20 && minScore > 8)
-        ) {
+        if (nearestMatches.isEmpty) {
             return emptyList()
         }
 
         var thresholdIndex = 0
         while (thresholdIndex < nearestMatches.size && nearestMatches[thresholdIndex].second <= 1.20 * minScore) {
             thresholdIndex++
+        }
+
+        if (thresholdIndex + 1 >= nearestMatches.size) {
+            return nearestMatches
         }
 
         return nearestMatches.subList(0, thresholdIndex)

@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="feat(filtering): add filtering callback">
+    <list default="true" id="5b268699-256d-407c-a7ea-6a015627186c" name="Changes" comment="feat(synonyms): improve synonym response">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/KittyIndexer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
@@ -132,7 +132,7 @@
       <workItem from="1731026366050" duration="30000" />
       <workItem from="1731074590336" duration="11485000" />
       <workItem from="1731089579837" duration="13935000" />
-      <workItem from="1731333262083" duration="9160000" />
+      <workItem from="1731333262083" duration="14747000" />
     </task>
     <task id="LOCAL-00001" summary="feat(kitty): add enhanced kitty indexer">
       <option name="closed" value="true" />
@@ -174,11 +174,30 @@
       <option name="project" value="LOCAL" />
       <updated>1731074854142</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="feat(synonyms): improve synonym response">
+      <option name="closed" value="true" />
+      <created>1731344486457</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1731344486457</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="feat(kitty): add enhanced kitty indexer" />
@@ -186,6 +205,7 @@
     <MESSAGE value="chore(docs): remove unused functions and comments" />
     <MESSAGE value="fix(typos): add boundaries for typos" />
     <MESSAGE value="feat(filtering): add filtering values" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(filtering): add filtering values" />
+    <MESSAGE value="feat(synonyms): improve synonym response" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(synonyms): improve synonym response" />
   </component>
 </project>

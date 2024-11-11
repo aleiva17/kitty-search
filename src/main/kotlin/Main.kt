@@ -83,6 +83,8 @@ fun main() {
         Food("Plátano", "Frutas"),
         Food("Banana", "Frutas"),
         Food("Banano", "Frutas"),
+
+        Food("Agua", "Bebidas")
     )
 
     val synonyms = arrayListOf(
@@ -185,4 +187,7 @@ fun main() {
     runSearchTest("aguaca", kitty)
     runSearchTest("aguacat", kitty)
     runSearchTest("aguacate", kitty)
+
+
+    runSearchTest("agux", kitty)
 }
