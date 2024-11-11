@@ -212,7 +212,7 @@ class KittyIndexer<T>(
         }
 
         nearestMatches.sortBy { it.second }
-        if (nearestMatches.isEmpty) {
+        if (nearestMatches.isEmpty()) {
             return emptyList()
         }
 
